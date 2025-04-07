@@ -11,6 +11,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale } from "chart.js";
 
+// Registrar los componentes necesarios para el gráfico
 ChartJS.register(BarElement, CategoryScale, LinearScale);
 
 function App() {
@@ -20,30 +21,51 @@ function App() {
 
   const usersCollectionRef = collection(db, "users");
 
+  // Obtener los usuarios al cargar la página
   useEffect(() => {
     const getUsers = async () => {
-      const data = await getDocs(usersCollectionRef);
-      setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      try {
+        const data = await getDocs(usersCollectionRef);
+        setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      } catch (error) {
+        console.error("Error al obtener los usuarios: ", error);
+      }
     };
     getUsers();
   }, []);
 
+  // Crear un nuevo usuario
   const createUser = async () => {
-    await addDoc(usersCollectionRef, { name, age: Number(age) });
-    setName("");
-    setAge("");
+    try {
+      await addDoc(usersCollectionRef, { name, age: Number(age) });
+      setName("");
+      setAge("");
+    } catch (error) {
+      console.error("Error al agregar el usuario: ", error);
+    }
   };
 
+  // Actualizar la edad de un usuario
   const updateUser = async (id, newAge) => {
-    const userDoc = doc(db, "users", id);
-    await updateDoc(userDoc, { age: newAge });
+    try {
+      const userDoc = doc(db, "users", id);
+      await updateDoc(userDoc, { age: newAge });
+    } catch (error) {
+      console.error("Error al actualizar el usuario: ", error);
+    }
   };
 
+  // Eliminar un usuario
   const deleteUser = async (id) => {
-    const userDoc = doc(db, "users", id);
-    await deleteDoc(userDoc);
+    try {
+      const userDoc = doc(db, "users", id);
+      await deleteDoc(userDoc);
+    } catch (error) {
+      console.error("Error al eliminar el usuario: ", error);
+    }
   };
 
+  // Configuración de los datos para el gráfico
   const chartData = {
     labels: users.map((user) => user.name),
     datasets: [
@@ -71,6 +93,7 @@ function App() {
       />
       <button onClick={createUser}>Agregar usuario</button>
 
+      {/* Mostrar los usuarios */}
       {users.map((user) => (
         <div key={user.id}>
           <h2>{user.name}</h2>
@@ -80,6 +103,7 @@ function App() {
         </div>
       ))}
 
+      {/* Mostrar el gráfico de edades */}
       <h2>Gráfico de Edades</h2>
       <Bar data={chartData} />
     </div>
