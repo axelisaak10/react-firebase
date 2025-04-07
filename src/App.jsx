@@ -1,4 +1,3 @@
-// App.jsx
 import { useState, useEffect } from "react";
 import { db } from "./firebaseConfig";
 import {
@@ -26,13 +25,12 @@ function App() {
 
   const usersCollectionRef = collection(db, "users");
 
-  // Función para obtener usuarios
   const getUsers = async () => {
     try {
       const data = await getDocs(usersCollectionRef);
       setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     } catch (error) {
-      console.error("Error al obtener los usuarios: ", error);
+      console.error("Error al obtener los usuarios:", error);
     }
   };
 
@@ -41,13 +39,15 @@ function App() {
   }, []);
 
   const createUser = async () => {
-    try {
-      await addDoc(usersCollectionRef, { name, age: Number(age) });
-      setName("");
-      setAge("");
-      getUsers(); // 🔥 Recarga la lista después de agregar
-    } catch (error) {
-      console.error("Error al agregar el usuario: ", error);
+    if (name && age) {
+      try {
+        await addDoc(usersCollectionRef, { name, age: Number(age) });
+        setName("");
+        setAge("");
+        getUsers(); // actualiza después de agregar
+      } catch (error) {
+        console.error("Error al agregar usuario:", error);
+      }
     }
   };
 
@@ -55,9 +55,9 @@ function App() {
     try {
       const userDoc = doc(db, "users", id);
       await updateDoc(userDoc, { age: newAge });
-      getUsers(); // 🔄 Refrescar usuarios
+      getUsers(); // actualiza después de actualizar
     } catch (error) {
-      console.error("Error al actualizar el usuario: ", error);
+      console.error("Error al actualizar usuario:", error);
     }
   };
 
@@ -65,9 +65,9 @@ function App() {
     try {
       const userDoc = doc(db, "users", id);
       await deleteDoc(userDoc);
-      getUsers(); // 🗑️ Refrescar después de eliminar
+      getUsers(); // actualiza después de eliminar
     } catch (error) {
-      console.error("Error al eliminar el usuario: ", error);
+      console.error("Error al eliminar usuario:", error);
     }
   };
 
